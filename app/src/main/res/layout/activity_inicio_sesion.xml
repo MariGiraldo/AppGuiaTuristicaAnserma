@@ -12,17 +12,16 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="10dp"
+        android:layout_marginTop="20dp"
         android:fontFamily="serif"
         android:text="Contraseña"
         android:textColor="#3F51B5"
         android:textSize="16sp"
         android:textStyle="bold|italic"
-        app:layout_constraintBottom_toTopOf="@+id/et_cont2"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.109"
+        app:layout_constraintHorizontal_bias="0.078"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/et_email2"
-        app:layout_constraintVertical_bias="0.5" />
+        app:layout_constraintTop_toBottomOf="@+id/et_email2" />
 
     <ImageView
         android:id="@+id/img_logo"
@@ -34,7 +33,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.5"
-        app:srcCompat="@mipmap/Logo" />
+        app:srcCompat="@mipmap/logo" />
 
     <TextView
         android:id="@+id/textView"
@@ -59,49 +58,46 @@
         android:layout_width="344dp"
         android:layout_height="60dp"
         android:layout_marginStart="50dp"
+        android:layout_marginTop="24dp"
         android:layout_marginEnd="50dp"
         android:ems="10"
         android:hint="Ingresa tu correo electrónico"
         android:inputType="textEmailAddress"
-        app:layout_constraintBottom_toTopOf="@+id/textView3"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintHorizontal_bias="0.484"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView2"
-        app:layout_constraintVertical_bias="0.5" />
+        app:layout_constraintTop_toBottomOf="@+id/textView2" />
 
     <EditText
         android:id="@+id/et_cont2"
         android:layout_width="344dp"
         android:layout_height="60dp"
         android:layout_marginStart="50dp"
+        android:layout_marginTop="24dp"
         android:layout_marginEnd="50dp"
         android:ems="10"
         android:hint="Ingresa una contraseña"
         android:inputType="textPassword"
-        app:layout_constraintBottom_toTopOf="@+id/btn_inicio"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintHorizontal_bias="0.515"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView3"
-        app:layout_constraintVertical_bias="0.5" />
+        app:layout_constraintTop_toBottomOf="@+id/textView3" />
 
     <TextView
         android:id="@+id/textView2"
         android:layout_width="118dp"
         android:layout_height="28dp"
         android:layout_marginStart="10dp"
+        android:layout_marginTop="24dp"
         android:fontFamily="serif"
         android:text="E-mail"
         android:textColor="#3F51B5"
         android:textSize="16sp"
         android:textStyle="bold|italic"
-        app:layout_constraintBottom_toTopOf="@+id/et_email2"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.1"
+        app:layout_constraintHorizontal_bias="0.098"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView"
-        app:layout_constraintVertical_bias="0.5" />
+        app:layout_constraintTop_toBottomOf="@+id/textView" />
 
     <Button
         android:id="@+id/btn_inicio"
