@@ -18,7 +18,7 @@ public class ActivityRegistrarse extends AppCompatActivity {
 
     private EditText et_email, et_cont;
     private Button btn_registro;
-    private TextView tv_inicioSesion; 
+    private TextView tv_inicioSesion;
 
     @SuppressLint("MissingInflatedId")
     @Override
@@ -37,7 +37,6 @@ public class ActivityRegistrarse extends AppCompatActivity {
             }
         });
 
-        // ✅ Navegar a pantalla de inicio de sesión
         tv_inicioSesion.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
