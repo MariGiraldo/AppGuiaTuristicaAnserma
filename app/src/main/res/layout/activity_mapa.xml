@@ -4,11 +4,11 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@mipmap/caf"
     android:alpha="0.80"
+    android:background="@mipmap/caf"
     tools:context=".ActivityMapa">
 
-    <com.google.android.gms.maps.MapView
+    <org.osmdroid.views.MapView
         android:id="@+id/mapView"
         android:layout_width="395dp"
         android:layout_height="517dp"
@@ -27,7 +27,7 @@
         android:textStyle="bold|italic"
         app:layout_constraintBottom_toTopOf="@+id/btn_favoritos"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintHorizontal_bias="0.515"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/mapView"
         app:layout_constraintVertical_bias="0.5"
@@ -37,14 +37,27 @@
         android:id="@+id/btn_favoritos"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:backgroundTint="#3F51B5"
+        android:backgroundTint="#137E17"
         android:fontFamily="serif"
         android:text="Añadir un lugar"
         android:textStyle="bold|italic"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/btn_mispuntos"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tv_distancia"
+        app:layout_constraintVertical_bias="0.5" />
+
+    <Button
+        android:id="@+id/btn_mispuntos"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:backgroundTint="#137E17"
+        android:text="Mis lugares agregados"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/btn_favoritos"
         app:layout_constraintTop_toBottomOf="@+id/tv_distancia"
         app:layout_constraintVertical_bias="0.5" />
 
