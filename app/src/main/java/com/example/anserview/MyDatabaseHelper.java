@@ -1,5 +1,6 @@
 package com.example.anserview;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
@@ -15,7 +16,7 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase BaseDeDatos) {
         BaseDeDatos.execSQL("CREATE TABLE Registros(correo TEXT PRIMARY KEY, password TEXT)");
-        BaseDeDatos.execSQL("CREATE TABLE Lugares(id int PRIMARY KEY AUTOINCREMENT, password TEXT)");
+        BaseDeDatos.execSQL("CREATE TABLE Lugares(id int PRIMARY KEY AUTOINCREMENT,nombre TEXT, descripcion TEXT, lat DOUBLE, lon DOUBLE, imagen BLOB)");
 
         // ✅ Insertar usuario de prueba (dato quemado)
         BaseDeDatos.execSQL("INSERT INTO Registros(correo, password) VALUES('mari@correo.com', '1234')");
@@ -24,5 +25,8 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         // Aquí puedes manejar actualizaciones de esquema si lo necesitas
+    }
+
+    public void insert(String lugares, Object o, ContentValues registro) {
     }
 }

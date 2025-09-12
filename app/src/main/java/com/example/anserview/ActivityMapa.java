@@ -2,9 +2,12 @@ package com.example.anserview;
 
 import android.Manifest;
 import android.app.AlertDialog;
+import android.content.ContentValues;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
@@ -62,9 +65,10 @@ public class ActivityMapa extends AppCompatActivity {
 //    private String pendingDescription;
 //    private double pendingLat, pendingLon;
 //    private Bitmap capturedBitmap;
-    private ActivityResultLauncher<Intent> cameraLauncher;
-    private ActivityResultLauncher<String> requestPermissionLauncher;
+    private ActivityResultLauncher<Void> cameraLauncher;
     private Bitmap capturedImage = null;
+    private ActivityResultLauncher<String> requestPermissionLauncher;
+
     private Button fab_add_place, fab_view_places, fab_my_location;
 
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 500;
@@ -105,6 +109,16 @@ public class ActivityMapa extends AppCompatActivity {
 
         fab_add_place = findViewById(R.id.fab_add_place);
 
+        cameraLauncher = registerForActivityResult(
+                new ActivityResultContracts.TakePicturePreview(),
+                result -> {
+                    if (result != null) {
+                        capturedImage = result;
+                        Toast.makeText(this, "Foto capturada", Toast.LENGTH_SHORT).show();
+                    }
+                }
+        );
+
 
         // Inicializa el lanzador de permisos
         requestPermissionLauncher = registerForActivityResult(
@@ -134,16 +148,7 @@ public class ActivityMapa extends AppCompatActivity {
                 Toast.makeText(this, "Esperando ubicación...", Toast.LENGTH_SHORT).show();
             }
         });
-        cameraLauncher = registerForActivityResult(
-                new ActivityResultContracts.StartActivityForResult(),
-                result -> {
-                    if (result.getResultCode() == RESULT_OK && result.getData() != null) {
-                        Bundle extras = result.getData().getExtras();
-                        capturedImage = (Bitmap) extras.get("data"); // Foto en miniatura
-                        Toast.makeText(this, "Foto capturada", Toast.LENGTH_SHORT).show();
-                    }
-                }
-        );
+
 
         fab_add_place = findViewById(R.id.fab_add_place);
         fab_add_place.setOnClickListener(v -> showAddPlaceDialog());
@@ -161,7 +166,7 @@ public class ActivityMapa extends AppCompatActivity {
             Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
                 // El permiso ya está concedido, simplemente lanza la cámara
-                cameraLauncher.launch(cameraIntent);
+                cameraLauncher.launch(null);
             } else {
                 // Solicita el permiso
                 requestPermissionLauncher.launch(Manifest.permission.CAMERA);
@@ -175,6 +180,29 @@ public class ActivityMapa extends AppCompatActivity {
                 .setPositiveButton("Agregar", (dialog, which) -> {
                     String name = etName.getText().toString().trim();
                     String description = etDescription.getText().toString().trim();
+                    if (myLocationMarker != null) {
+                        GeoPoint point = myLocationMarker.getPosition();
+                        addCustomMarker(point, name, description, capturedImage);
+
+                        // Guardar en BD
+                        MyDatabaseHelper dbHelper = new MyDatabaseHelper(this, "Lugares", null, 1);
+                        byte[] fotoBytes = null;
+                        if (capturedImage != null) {
+                            fotoBytes = bitmapToBytes(capturedImage);
+                        }
+                        ContentValues registro = new ContentValues();
+                        registro.put("nombre", name);
+                        registro.put("descripcion", description);
+                        registro.put("lat", point.getLatitude());
+                        registro.put("lon", point.getLongitude());
+                        registro.put("imagen", fotoBytes);
+
+                        dbHelper.insert("Lugares", null, registro);
+                        dbHelper.close();
+
+
+                        Toast.makeText(this, "Lugar guardado en la base de datos", Toast.LENGTH_SHORT).show();
+                    }
 
                     if (name.isEmpty()) name = "Lugar sin nombre";
                     if (description.isEmpty()) description = "Sin descripción";
@@ -190,6 +218,11 @@ public class ActivityMapa extends AppCompatActivity {
                 .setNegativeButton("Cancelar", null)
                 .show();
     }
+    private byte[] bitmapToBytes(Bitmap bitmap) {
+        java.io.ByteArrayOutputStream stream = new java.io.ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
+        return stream.toByteArray();
+    }
 
     private void addCustomMarker(GeoPoint point, String name, String description, Bitmap photo) {
         Marker marker = new Marker(mapView);
@@ -197,6 +230,17 @@ public class ActivityMapa extends AppCompatActivity {
         marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
         marker.setTitle(name);
 
+
+
+        MyDatabaseHelper adminBD = new MyDatabaseHelper(this,"administradorBD", null, 1);
+        SQLiteDatabase baseDeDatos = adminBD.getWritableDatabase();
+        String nombre = name;
+        String descripcion = description;
+        Location ubicacion = null;
+        ubicacion.setLatitude(point.getLatitude());
+        ubicacion.setLongitude(point.getLongitude());
+
+        bitmapToBytes(photo);
 
 
         marker.setOnMarkerClickListener((m, map) -> {
@@ -459,7 +503,7 @@ public class ActivityMapa extends AppCompatActivity {
                     if (m.isInfoWindowShown()) {
                         m.closeInfoWindow();
                     } else {
-                        showPlaceInfo(m, lat, lon, type);
+                        showPlaceInfo(m, lat, lon);
                     }
                     return true;
                 });
@@ -468,7 +512,7 @@ public class ActivityMapa extends AppCompatActivity {
     }
 
 
-    private void showPlaceInfo(Marker marker, double lat, double lon, PlaceType type) {
+    private void showPlaceInfo(Marker marker, double lat, double lon) {
         String wikiUrl = "https://es.wikipedia.org/w/api.php?action=query&prop=extracts|pageimages&exintro=1&explaintext=1&pithumbsize=200&format=json&generator=geosearch&ggsradius=1000&ggslimit=1&ggscoord="
                 + lat + "|" + lon;
 
