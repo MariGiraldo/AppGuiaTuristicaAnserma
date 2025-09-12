@@ -5,6 +5,7 @@ import android.app.AlertDialog;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
@@ -59,7 +60,7 @@ public class ActivityMapa extends AppCompatActivity {
     private FusedLocationProviderClient fusedLocationProviderClient;
     private LocationCallback locationCallback;
     private OkHttpClient httpClient;
-//    private static final int REQUEST_IMAGE_CAPTURE = 1001;
+    //    private static final int REQUEST_IMAGE_CAPTURE = 1001;
 //
 //    private String pendingName;
 //    private String pendingDescription;
@@ -118,6 +119,7 @@ public class ActivityMapa extends AppCompatActivity {
                     }
                 }
         );
+        loadSavedPlaces();
 
 
         // Inicializa el lanzador de permisos
@@ -180,12 +182,15 @@ public class ActivityMapa extends AppCompatActivity {
                 .setPositiveButton("Agregar", (dialog, which) -> {
                     String name = etName.getText().toString().trim();
                     String description = etDescription.getText().toString().trim();
+                    if (name.isEmpty()) name = "Lugar sin nombre";
+                    if (description.isEmpty()) description = "Sin descripción";
+
                     if (myLocationMarker != null) {
                         GeoPoint point = myLocationMarker.getPosition();
                         addCustomMarker(point, name, description, capturedImage);
 
                         // Guardar en BD
-                        MyDatabaseHelper dbHelper = new MyDatabaseHelper(this, "Lugares", null, 1);
+                        MyDatabaseHelper dbHelper = new MyDatabaseHelper(this, "AppDB", null, 1);
                         byte[] fotoBytes = null;
                         if (capturedImage != null) {
                             fotoBytes = bitmapToBytes(capturedImage);
@@ -197,19 +202,14 @@ public class ActivityMapa extends AppCompatActivity {
                         registro.put("lon", point.getLongitude());
                         registro.put("imagen", fotoBytes);
 
-                        dbHelper.insert("Lugares", null, registro);
+                        long resultado = dbHelper.insert("Lugares", null, registro);
                         dbHelper.close();
 
-
-                        Toast.makeText(this, "Lugar guardado en la base de datos", Toast.LENGTH_SHORT).show();
-                    }
-
-                    if (name.isEmpty()) name = "Lugar sin nombre";
-                    if (description.isEmpty()) description = "Sin descripción";
-
-                    if (myLocationMarker != null) {
-                        GeoPoint point = myLocationMarker.getPosition();
-                        addCustomMarker(point, name, description, capturedImage);
+                        if (resultado != -1) {
+                            Toast.makeText(this, "Lugar guardado en la base de datos", Toast.LENGTH_SHORT).show();
+                        } else {
+                            Toast.makeText(this, "Error al guardar lugar", Toast.LENGTH_SHORT).show();
+                        }
                     } else {
                         Toast.makeText(this, "No se detectó ubicación actual", Toast.LENGTH_SHORT).show();
                     }
@@ -236,7 +236,7 @@ public class ActivityMapa extends AppCompatActivity {
         SQLiteDatabase baseDeDatos = adminBD.getWritableDatabase();
         String nombre = name;
         String descripcion = description;
-        Location ubicacion = null;
+        Location ubicacion = new Location("manual");
         ubicacion.setLatitude(point.getLatitude());
         ubicacion.setLongitude(point.getLongitude());
 
@@ -244,38 +244,40 @@ public class ActivityMapa extends AppCompatActivity {
 
 
         marker.setOnMarkerClickListener((m, map) -> {
-            InfoWindow.closeAllInfoWindowsOn(mapView);
+            if (m.isInfoWindowShown()) {
+                // Si ya está abierto → lo cierra
+                m.closeInfoWindow();
+            } else {
+                // Si está cerrado → lo abre
+                InfoWindow infoWindow = new InfoWindow(R.layout.infowindow_place_detail, mapView) {
+                    @Override
+                    public void onOpen(Object item) {
+                        View v = mView;
+                        TextView tvTitle = v.findViewById(R.id.iw_title);
+                        TextView tvDesc = v.findViewById(R.id.iw_description);
+                        ImageView ivImage = v.findViewById(R.id.iw_image);
 
-            InfoWindow infoWindow = new InfoWindow(R.layout.infowindow_place_detail, mapView) {
-                @Override
-                public void onOpen(Object item) {
-                    View v = mView;
-                    TextView tvTitle = v.findViewById(R.id.iw_title);
-                    TextView tvDesc = v.findViewById(R.id.iw_description);
-                    ImageView ivImage = v.findViewById(R.id.iw_image);
+                        tvTitle.setText(name);
+                        tvDesc.setText(description);
 
-                    tvTitle.setText(name);
-                    tvDesc.setText(description);
-
-                    if (photo != null) {
-                        ivImage.setVisibility(View.VISIBLE);
-                        ivImage.setImageBitmap(photo);
-                    } else {
-                        ivImage.setVisibility(View.GONE);
+                        if (photo != null) {
+                            ivImage.setVisibility(View.VISIBLE);
+                            ivImage.setImageBitmap(photo);
+                        } else {
+                            ivImage.setVisibility(View.GONE);
+                        }
                     }
-                }
 
+                    @Override
+                    public void onClose() {}
+                };
 
-                @Override
-                public void onClose() {}
-            };
-
-
-
-            marker.setInfoWindow(infoWindow);
-            marker.showInfoWindow();
+                m.setInfoWindow(infoWindow);
+                m.showInfoWindow();
+            }
             return true;
         });
+
 
         mapView.getOverlays().add(marker);
         mapView.invalidate();
@@ -608,6 +610,32 @@ public class ActivityMapa extends AppCompatActivity {
                 return R.drawable.ic_marker_default;
         }
     }
+
+    private void loadSavedPlaces() {
+        MyDatabaseHelper dbHelper = new MyDatabaseHelper(this, "AppDB", null, 1);
+        Cursor cursor = dbHelper.getAllLugares();
+
+        if (cursor != null) {
+            while (cursor.moveToNext()) {
+                String nombre = cursor.getString(cursor.getColumnIndexOrThrow("nombre"));
+                String descripcion = cursor.getString(cursor.getColumnIndexOrThrow("descripcion"));
+                double lat = cursor.getDouble(cursor.getColumnIndexOrThrow("lat"));
+                double lon = cursor.getDouble(cursor.getColumnIndexOrThrow("lon"));
+                byte[] fotoBytes = cursor.getBlob(cursor.getColumnIndexOrThrow("imagen"));
+
+                Bitmap foto = null;
+                if (fotoBytes != null) {
+                    foto = android.graphics.BitmapFactory.decodeByteArray(fotoBytes, 0, fotoBytes.length);
+                }
+
+                GeoPoint point = new GeoPoint(lat, lon);
+                addCustomMarker(point, nombre, descripcion, foto);
+            }
+            cursor.close();
+        }
+        dbHelper.close();
+    }
+
 
     @Override
     public void onResume() {
