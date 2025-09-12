@@ -15,6 +15,7 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase BaseDeDatos) {
         BaseDeDatos.execSQL("CREATE TABLE Registros(correo TEXT PRIMARY KEY, password TEXT)");
+        BaseDeDatos.execSQL("CREATE TABLE Lugares(id int PRIMARY KEY AUTOINCREMENT, password TEXT)");
 
         // ✅ Insertar usuario de prueba (dato quemado)
         BaseDeDatos.execSQL("INSERT INTO Registros(correo, password) VALUES('mari@correo.com', '1234')");
