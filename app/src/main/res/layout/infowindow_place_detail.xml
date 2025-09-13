@@ -37,4 +37,10 @@
         android:textColor="#444"
         android:maxLines="5"
         android:ellipsize="end"/>
+
+    <TextView
+        android:id="@+id/tv_distancia"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Distancia" />
 </LinearLayout>

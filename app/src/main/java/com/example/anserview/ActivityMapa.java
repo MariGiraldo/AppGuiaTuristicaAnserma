@@ -6,9 +6,7 @@ import android.content.ContentValues;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
-import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
@@ -48,6 +46,7 @@ import org.osmdroid.views.overlay.infowindow.InfoWindow;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Locale;
 
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -60,17 +59,11 @@ public class ActivityMapa extends AppCompatActivity {
     private FusedLocationProviderClient fusedLocationProviderClient;
     private LocationCallback locationCallback;
     private OkHttpClient httpClient;
-    //    private static final int REQUEST_IMAGE_CAPTURE = 1001;
-//
-//    private String pendingName;
-//    private String pendingDescription;
-//    private double pendingLat, pendingLon;
-//    private Bitmap capturedBitmap;
     private ActivityResultLauncher<Void> cameraLauncher;
     private Bitmap capturedImage = null;
     private ActivityResultLauncher<String> requestPermissionLauncher;
 
-    private Button fab_add_place, fab_view_places, fab_my_location;
+    private Button fab_add_place;
 
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 500;
     private static final String TAG = "ActivityMapa";
@@ -121,22 +114,15 @@ public class ActivityMapa extends AppCompatActivity {
         );
         loadSavedPlaces();
 
-
-        // Inicializa el lanzador de permisos
         requestPermissionLauncher = registerForActivityResult(
                 new ActivityResultContracts.RequestPermission(),
                 isGranted -> {
                     if (isGranted) {
-                        // El permiso fue concedido. Lanza la cámara.
-                        Toast.makeText(this, "Permiso de cámara concedido", Toast.LENGTH_SHORT).show();
-                        cameraLauncher.launch(null); // Llama al lanzador de la cámara
+                        cameraLauncher.launch(null);
                     } else {
-                        // El permiso fue denegado. Informa al usuario.
                         Toast.makeText(this, "Permiso de cámara denegado", Toast.LENGTH_SHORT).show();
                     }
                 });
-
-
     }
 
     private void setupUI() {
@@ -151,13 +137,11 @@ public class ActivityMapa extends AppCompatActivity {
             }
         });
 
-
         fab_add_place = findViewById(R.id.fab_add_place);
         fab_add_place.setOnClickListener(v -> showAddPlaceDialog());
-
     }
+
     private void showAddPlaceDialog() {
-        // Layout dinámico dentro del diálogo
         View dialogView = getLayoutInflater().inflate(R.layout.dialog_add_place, null);
 
         EditText etName = dialogView.findViewById(R.id.et_name);
@@ -165,15 +149,11 @@ public class ActivityMapa extends AppCompatActivity {
         Button btnTakePhoto = dialogView.findViewById(R.id.btn_take_photo);
 
         btnTakePhoto.setOnClickListener(v -> {
-            Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
-                // El permiso ya está concedido, simplemente lanza la cámara
                 cameraLauncher.launch(null);
             } else {
-                // Solicita el permiso
                 requestPermissionLauncher.launch(Manifest.permission.CAMERA);
             }
-
         });
 
         new AlertDialog.Builder(this)
@@ -189,7 +169,6 @@ public class ActivityMapa extends AppCompatActivity {
                         GeoPoint point = myLocationMarker.getPosition();
                         addCustomMarker(point, name, description, capturedImage);
 
-                        // Guardar en BD
                         MyDatabaseHelper dbHelper = new MyDatabaseHelper(this, "AppDB", null, 1);
                         byte[] fotoBytes = null;
                         if (capturedImage != null) {
@@ -213,11 +192,12 @@ public class ActivityMapa extends AppCompatActivity {
                     } else {
                         Toast.makeText(this, "No se detectó ubicación actual", Toast.LENGTH_SHORT).show();
                     }
-                    capturedImage = null; // Reset
+                    capturedImage = null;
                 })
                 .setNegativeButton("Cancelar", null)
                 .show();
     }
+
     private byte[] bitmapToBytes(Bitmap bitmap) {
         java.io.ByteArrayOutputStream stream = new java.io.ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
@@ -230,65 +210,33 @@ public class ActivityMapa extends AppCompatActivity {
         marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
         marker.setTitle(name);
 
-
-
-        MyDatabaseHelper adminBD = new MyDatabaseHelper(this,"administradorBD", null, 1);
-        SQLiteDatabase baseDeDatos = adminBD.getWritableDatabase();
-        String nombre = name;
-        String descripcion = description;
-        Location ubicacion = new Location("manual");
-        ubicacion.setLatitude(point.getLatitude());
-        ubicacion.setLongitude(point.getLongitude());
-
-        bitmapToBytes(photo);
-
-
         marker.setOnMarkerClickListener((m, map) -> {
             if (m.isInfoWindowShown()) {
-                // Si ya está abierto → lo cierra
                 m.closeInfoWindow();
-            } else {
-                // Si está cerrado → lo abre
-                InfoWindow infoWindow = new InfoWindow(R.layout.infowindow_place_detail, mapView) {
-                    @Override
-                    public void onOpen(Object item) {
-                        View v = mView;
-                        TextView tvTitle = v.findViewById(R.id.iw_title);
-                        TextView tvDesc = v.findViewById(R.id.iw_description);
-                        ImageView ivImage = v.findViewById(R.id.iw_image);
+            } else if (myLocationMarker != null) {
+                GeoPoint userPoint = myLocationMarker.getPosition();
+                Location userLocation = new Location("");
+                userLocation.setLatitude(userPoint.getLatitude());
+                userLocation.setLongitude(userPoint.getLongitude());
 
-                        tvTitle.setText(name);
-                        tvDesc.setText(description);
+                Location markerLocation = new Location("");
+                markerLocation.setLatitude(point.getLatitude());
+                markerLocation.setLongitude(point.getLongitude());
 
-                        if (photo != null) {
-                            ivImage.setVisibility(View.VISIBLE);
-                            ivImage.setImageBitmap(photo);
-                        } else {
-                            ivImage.setVisibility(View.GONE);
-                        }
-                    }
-
-                    @Override
-                    public void onClose() {}
-                };
-
-                m.setInfoWindow(infoWindow);
-                m.showInfoWindow();
+                double distancia = userLocation.distanceTo(markerLocation);
+                showCustomInfoWindow(m, name, description, null, photo, distancia);
             }
             return true;
         });
-
 
         mapView.getOverlays().add(marker);
         mapView.invalidate();
     }
 
-
-
     private void setupMap() {
         mapView.setMultiTouchControls(true);
         mapView.getController().setZoom(16.0);
-        mapView.getController().setCenter(new GeoPoint(5.2353, -75.7919)); // Centro de Anserma
+        mapView.getController().setCenter(new GeoPoint(5.2353, -75.7919));
     }
 
     private void setupLocationUpdates() {
@@ -306,11 +254,9 @@ public class ActivityMapa extends AppCompatActivity {
 
     private void requestLocationPermissions() {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(
-                    this,
+            ActivityCompat.requestPermissions(this,
                     new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                    LOCATION_PERMISSION_REQUEST_CODE
-            );
+                    LOCATION_PERMISSION_REQUEST_CODE);
         } else {
             startLocationUpdates();
         }
@@ -323,8 +269,6 @@ public class ActivityMapa extends AppCompatActivity {
         if (requestCode == LOCATION_PERMISSION_REQUEST_CODE && grantResults.length > 0
                 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
             startLocationUpdates();
-        } else {
-            Toast.makeText(this, "Permisos de ubicación denegados. La app no podrá mostrar tu posición.", Toast.LENGTH_LONG).show();
         }
     }
 
@@ -403,16 +347,12 @@ public class ActivityMapa extends AppCompatActivity {
             default:
                 return;
         }
-
         String query = String.format(overpassQueryTemplate, overpassTags);
         executeOverpassQuery(query, type);
     }
 
-
     private void executeOverpassQuery(String query, PlaceType type) {
         String url = "https://overpass-api.de/api/interpreter?data=" + Uri.encode(query);
-        Log.d(TAG, "Overpass URL: " + url);
-
         new Thread(() -> {
             try {
                 Request request = new Request.Builder().url(url).build();
@@ -428,12 +368,10 @@ public class ActivityMapa extends AppCompatActivity {
                             JsonObject obj = element.getAsJsonObject();
                             addMarkerFromElement(obj, type);
                         }
-                        mapView.invalidate();
                     });
                 }
             } catch (IOException e) {
-                Log.e(TAG, "Error ejecutando la consulta Overpass", e);
-                runOnUiThread(() -> Toast.makeText(this, "Error de red al cargar lugares.", Toast.LENGTH_SHORT).show());
+                Log.e(TAG, "Error Overpass", e);
             }
         }).start();
     }
@@ -447,9 +385,7 @@ public class ActivityMapa extends AppCompatActivity {
             JsonObject center = obj.getAsJsonObject("center");
             lat = center.get("lat").getAsDouble();
             lon = center.get("lon").getAsDouble();
-        } else {
-            return;
-        }
+        } else return;
 
         String name = getPlaceName(obj);
         int iconResId = getIconForPlaceType(type);
@@ -461,106 +397,63 @@ public class ActivityMapa extends AppCompatActivity {
         marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
         marker.setIcon(getResources().getDrawable(iconResId, getTheme()));
 
-        // Añadir el marcador ahora (sin descripción todavía)
         mapView.getOverlays().add(marker);
-        mapView.invalidate();
 
-        // Llamar a Wikipedia para obtener la descripción y/o imagen
-        new Thread(() -> {
-            String description = type.toString();
-            String imageUrl = null;
+        marker.setOnMarkerClickListener((m, map) -> {
+            if (m.isInfoWindowShown()) {
+                m.closeInfoWindow();
+            } else if (myLocationMarker != null) {
+                GeoPoint userPoint = myLocationMarker.getPosition();
+                Location userLocation = new Location("");
+                userLocation.setLatitude(userPoint.getLatitude());
+                userLocation.setLongitude(userPoint.getLongitude());
 
-            try {
-                String wikiUrl = "https://es.wikipedia.org/w/api.php?action=query&prop=extracts|pageimages&exintro=1&explaintext=1&pithumbsize=200&format=json&generator=geosearch&ggsradius=1000&ggslimit=1&ggscoord="
-                        + lat + "|" + lon;
+                Location markerLocation = new Location("");
+                markerLocation.setLatitude(lat);
+                markerLocation.setLongitude(lon);
 
-                Request request = new Request.Builder().url(wikiUrl).build();
-                Response response = httpClient.newCall(request).execute();
-
-                if (response.isSuccessful() && response.body() != null) {
-                    String json = response.body().string();
-                    JsonObject root = JsonParser.parseString(json).getAsJsonObject();
-
-                    if (root.has("query")) {
-                        JsonObject pages = root.getAsJsonObject("query").getAsJsonObject("pages");
-                        for (String key : pages.keySet()) {
-                            JsonObject page = pages.getAsJsonObject(key);
-                            if (page.has("extract")) {
-                                description = page.get("extract").getAsString();
+                new Thread(() -> {
+                    String description = "Sin descripción disponible";
+                    String imageUrl = null;
+                    try {
+                        String wikiUrl = "https://es.wikipedia.org/w/api.php?action=query&prop=extracts|pageimages&exintro=1&explaintext=1&pithumbsize=200&format=json&generator=geosearch&ggsradius=1000&ggslimit=1&ggscoord="
+                                + lat + "|" + lon;
+                        Request request = new Request.Builder().url(wikiUrl).build();
+                        Response response = httpClient.newCall(request).execute();
+                        if (response.isSuccessful() && response.body() != null) {
+                            String json = response.body().string();
+                            JsonObject root = JsonParser.parseString(json).getAsJsonObject();
+                            if (root.has("query")) {
+                                JsonObject pages = root.getAsJsonObject("query").getAsJsonObject("pages");
+                                for (String key : pages.keySet()) {
+                                    JsonObject page = pages.getAsJsonObject(key);
+                                    if (page.has("extract")) {
+                                        description = page.get("extract").getAsString();
+                                    }
+                                    if (page.has("thumbnail")) {
+                                        imageUrl = page.getAsJsonObject("thumbnail").get("source").getAsString();
+                                    }
+                                    break;
+                                }
                             }
-                            if (page.has("thumbnail")) {
-                                imageUrl = page.getAsJsonObject("thumbnail").get("source").getAsString();
-                            }
-                            break;
                         }
+                    } catch (Exception e) {
+                        Log.e(TAG, "Error Wikipedia", e);
                     }
-                }
-            } catch (Exception e) {
-                Log.e(TAG, "Error al consultar Wikipedia", e);
+                    String finalDescription = description;
+                    String finalImageUrl = imageUrl;
+                    runOnUiThread(() -> {
+                        double distancia = userLocation.distanceTo(markerLocation);
+                        showCustomInfoWindow(m, name, finalDescription, finalImageUrl, null, distancia);
+                    });
+                }).start();
             }
-
-
-            runOnUiThread(() -> {
-                marker.setOnMarkerClickListener((m, map) -> {
-                    if (m.isInfoWindowShown()) {
-                        m.closeInfoWindow();
-                    } else {
-                        showPlaceInfo(m, lat, lon);
-                    }
-                    return true;
-                });
-            });
-        }).start();
+            return true;
+        });
     }
 
-
-    private void showPlaceInfo(Marker marker, double lat, double lon) {
-        String wikiUrl = "https://es.wikipedia.org/w/api.php?action=query&prop=extracts|pageimages&exintro=1&explaintext=1&pithumbsize=200&format=json&generator=geosearch&ggsradius=1000&ggslimit=1&ggscoord="
-                + lat + "|" + lon;
-
-        new Thread(() -> {
-            String description = "Sin descripción disponible";
-            String imageUrl = null;
-
-            try {
-                Request request = new Request.Builder().url(wikiUrl).build();
-                Response response = httpClient.newCall(request).execute();
-
-                if (response.isSuccessful() && response.body() != null) {
-                    String json = response.body().string();
-                    JsonObject root = JsonParser.parseString(json).getAsJsonObject();
-
-                    if (root.has("query")) {
-                        JsonObject pages = root.getAsJsonObject("query").getAsJsonObject("pages");
-                        for (String key : pages.keySet()) {
-                            JsonObject page = pages.getAsJsonObject(key);
-                            if (page.has("extract")) {
-                                description = page.get("extract").getAsString();
-                            }
-                            if (page.has("thumbnail")) {
-                                imageUrl = page.getAsJsonObject("thumbnail").get("source").getAsString();
-                            }
-                            break;
-                        }
-                    }
-                }
-            } catch (Exception e) {
-                Log.e(TAG, "Error al consultar Wikipedia", e);
-            }
-
-            String finalDescription = description;
-            String finalImageUrl = imageUrl;
-
-            runOnUiThread(() -> {
-                showInfoWindowWithDetails(marker, marker.getTitle(), finalDescription, finalImageUrl);
-            });
-        }).start();
-    }
-
-    private void showInfoWindowWithDetails(Marker marker, String title, String description, String imageUrl) {
+    private void showCustomInfoWindow(Marker marker, String title, String description, String imageUrl, Bitmap photo, double distancia) {
         InfoWindow.closeAllInfoWindowsOn(mapView);
-
-
         InfoWindow infoWindow = new InfoWindow(R.layout.infowindow_place_detail, mapView) {
             @Override
             public void onOpen(Object item) {
@@ -568,22 +461,24 @@ public class ActivityMapa extends AppCompatActivity {
                 TextView tvTitle = v.findViewById(R.id.iw_title);
                 TextView tvDesc = v.findViewById(R.id.iw_description);
                 ImageView ivImage = v.findViewById(R.id.iw_image);
+                TextView tvDistancia = v.findViewById(R.id.tv_distancia);
 
                 tvTitle.setText(title);
                 tvDesc.setText(description);
+                tvDistancia.setText("Está a: " + String.format(Locale.getDefault(), "%.2f", distancia) + " metros");
 
-                if (imageUrl != null) {
+                if (photo != null) {
+                    ivImage.setVisibility(View.VISIBLE);
+                    ivImage.setImageBitmap(photo);
+                } else if (imageUrl != null) {
                     ivImage.setVisibility(View.VISIBLE);
                     Picasso.get().load(imageUrl).into(ivImage);
                 } else {
                     ivImage.setVisibility(View.GONE);
                 }
             }
-
-            @Override
-            public void onClose() {}
+            @Override public void onClose() {}
         };
-
         marker.setInfoWindow(infoWindow);
         marker.showInfoWindow();
     }
@@ -600,21 +495,16 @@ public class ActivityMapa extends AppCompatActivity {
 
     private int getIconForPlaceType(PlaceType type) {
         switch (type) {
-            case HOTELS:
-                return R.drawable.ic_hotel;
-            case FOOD:
-                return R.drawable.ic_food;
-            case RECREATION:
-                return R.drawable.ic_recreation;
-            default:
-                return R.drawable.ic_marker_default;
+            case HOTELS: return R.drawable.ic_hotel;
+            case FOOD: return R.drawable.ic_food;
+            case RECREATION: return R.drawable.ic_recreation;
+            default: return R.drawable.ic_marker_default;
         }
     }
 
     private void loadSavedPlaces() {
         MyDatabaseHelper dbHelper = new MyDatabaseHelper(this, "AppDB", null, 1);
         Cursor cursor = dbHelper.getAllLugares();
-
         if (cursor != null) {
             while (cursor.moveToNext()) {
                 String nombre = cursor.getString(cursor.getColumnIndexOrThrow("nombre"));
@@ -622,30 +512,14 @@ public class ActivityMapa extends AppCompatActivity {
                 double lat = cursor.getDouble(cursor.getColumnIndexOrThrow("lat"));
                 double lon = cursor.getDouble(cursor.getColumnIndexOrThrow("lon"));
                 byte[] fotoBytes = cursor.getBlob(cursor.getColumnIndexOrThrow("imagen"));
-
                 Bitmap foto = null;
                 if (fotoBytes != null) {
                     foto = android.graphics.BitmapFactory.decodeByteArray(fotoBytes, 0, fotoBytes.length);
                 }
-
-                GeoPoint point = new GeoPoint(lat, lon);
-                addCustomMarker(point, nombre, descripcion, foto);
+                addCustomMarker(new GeoPoint(lat, lon), nombre, descripcion, foto);
             }
             cursor.close();
         }
         dbHelper.close();
-    }
-
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        mapView.onResume();
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        mapView.onPause();
     }
 }

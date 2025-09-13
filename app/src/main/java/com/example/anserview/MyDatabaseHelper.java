@@ -13,6 +13,7 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
     public MyDatabaseHelper(@Nullable Context context, @Nullable String name, @Nullable SQLiteDatabase.CursorFactory factory, int version) {
         super(context, name, factory, version);
     }
+
     public Cursor getAllLugares() {
         SQLiteDatabase db = this.getReadableDatabase();
         return db.rawQuery("SELECT * FROM Lugares", null);
@@ -47,5 +48,4 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getWritableDatabase();
         return db.insert(tabla, nullColumnHack, valores);
     }
-
 }
