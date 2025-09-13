@@ -10,7 +10,6 @@ import android.graphics.Bitmap;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
-import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -31,6 +30,7 @@ import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -42,10 +42,14 @@ import org.osmdroid.config.Configuration;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.Marker;
+import org.osmdroid.views.overlay.Polyline;
 import org.osmdroid.views.overlay.infowindow.InfoWindow;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 import okhttp3.OkHttpClient;
@@ -63,7 +67,8 @@ public class ActivityMapa extends AppCompatActivity {
     private Bitmap capturedImage = null;
     private ActivityResultLauncher<String> requestPermissionLauncher;
 
-    private Button fab_add_place;
+    private ExtendedFloatingActionButton fab_add_place;
+    private ExtendedFloatingActionButton fab_view_places;
 
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 500;
     private static final String TAG = "ActivityMapa";
@@ -101,8 +106,6 @@ public class ActivityMapa extends AppCompatActivity {
         loadPlaces(PlaceType.FOOD);
         loadPlaces(PlaceType.RECREATION);
 
-        fab_add_place = findViewById(R.id.fab_add_place);
-
         cameraLauncher = registerForActivityResult(
                 new ActivityResultContracts.TakePicturePreview(),
                 result -> {
@@ -128,6 +131,8 @@ public class ActivityMapa extends AppCompatActivity {
     private void setupUI() {
         mapView = findViewById(R.id.mapView);
         fabMyLocation = findViewById(R.id.fab_my_location);
+        fab_add_place = findViewById(R.id.fab_add_place);
+        fab_view_places = findViewById(R.id.fab_view_places);
 
         fabMyLocation.setOnClickListener(v -> {
             if (myLocationMarker != null) {
@@ -137,8 +142,12 @@ public class ActivityMapa extends AppCompatActivity {
             }
         });
 
-        fab_add_place = findViewById(R.id.fab_add_place);
         fab_add_place.setOnClickListener(v -> showAddPlaceDialog());
+
+        fab_view_places.setOnClickListener(v -> {
+            Intent intent = new Intent(ActivityMapa.this, ActivityLugares.class);
+            startActivity(intent);
+        });
     }
 
     private void showAddPlaceDialog() {
@@ -199,7 +208,7 @@ public class ActivityMapa extends AppCompatActivity {
     }
 
     private byte[] bitmapToBytes(Bitmap bitmap) {
-        java.io.ByteArrayOutputStream stream = new java.io.ByteArrayOutputStream();
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
         return stream.toByteArray();
     }
@@ -225,6 +234,7 @@ public class ActivityMapa extends AppCompatActivity {
 
                 double distancia = userLocation.distanceTo(markerLocation);
                 showCustomInfoWindow(m, name, description, null, photo, distancia);
+                drawRoute(userPoint, point);
             }
             return true;
         });
@@ -445,6 +455,7 @@ public class ActivityMapa extends AppCompatActivity {
                     runOnUiThread(() -> {
                         double distancia = userLocation.distanceTo(markerLocation);
                         showCustomInfoWindow(m, name, finalDescription, finalImageUrl, null, distancia);
+                        drawRoute(userPoint, new GeoPoint(lat, lon));
                     });
                 }).start();
             }
@@ -521,5 +532,56 @@ public class ActivityMapa extends AppCompatActivity {
             cursor.close();
         }
         dbHelper.close();
+    }
+
+    private void drawRoute(GeoPoint startPoint, GeoPoint endPoint) {
+        String url = "https://router.project-osrm.org/route/v1/driving/"
+                + startPoint.getLongitude() + "," + startPoint.getLatitude() + ";"
+                + endPoint.getLongitude() + "," + endPoint.getLatitude() + "?overview=full&geometries=geojson";
+
+        new Thread(() -> {
+            try {
+                Request request = new Request.Builder().url(url).build();
+                Response response = httpClient.newCall(request).execute();
+
+                if (response.isSuccessful() && response.body() != null) {
+                    String json = response.body().string();
+                    JsonObject jsonObject = JsonParser.parseString(json).getAsJsonObject();
+                    JsonArray routes = jsonObject.getAsJsonArray("routes");
+
+                    if (routes.size() > 0) {
+                        JsonObject route = routes.get(0).getAsJsonObject();
+                        JsonObject geometry = route.getAsJsonObject("geometry");
+                        JsonArray coordinates = geometry.getAsJsonArray("coordinates");
+
+                        List<GeoPoint> routePoints = new ArrayList<>();
+                        for (JsonElement coordinate : coordinates) {
+                            JsonArray coords = coordinate.getAsJsonArray();
+                            double lon = coords.get(0).getAsDouble();
+                            double lat = coords.get(1).getAsDouble();
+                            routePoints.add(new GeoPoint(lat, lon));
+                        }
+
+                        runOnUiThread(() -> {
+                            Polyline routeOverlay = new Polyline();
+                            routeOverlay.setPoints(routePoints);
+                            routeOverlay.setColor(0xFFFF0000);
+                            routeOverlay.setWidth(5f);
+
+                            for (int i = 0; i < mapView.getOverlays().size(); i++) {
+                                if (mapView.getOverlays().get(i) instanceof Polyline) {
+                                    mapView.getOverlays().remove(i);
+                                }
+                            }
+
+                            mapView.getOverlays().add(routeOverlay);
+                            mapView.invalidate();
+                        });
+                    }
+                }
+            } catch (IOException e) {
+                Log.e(TAG, "Error al trazar la ruta", e);
+            }
+        }).start();
     }
 }

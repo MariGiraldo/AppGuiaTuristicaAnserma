@@ -22,7 +22,7 @@
         android:theme="@style/Theme.AnserView" >
 
         <activity
-            android:name=".ActivityFavoritos"
+            android:name=".ActivityLugares"
             android:exported="false" />
         <activity
             android:name=".ActivityMapa"

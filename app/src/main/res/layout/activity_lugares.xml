@@ -7,7 +7,7 @@
     android:layout_height="match_parent"
     android:background="@mipmap/anserma"
     android:alpha="0.80"
-    tools:context=".ActivityFavoritos">
+    tools:context=".ActivityLugares">
 
     <TextView
         android:id="@+id/titulo"
