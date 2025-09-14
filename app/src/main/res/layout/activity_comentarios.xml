@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp"
+    tools:context=".ActivityComentarios">
+
+    <!-- Título del lugar -->
+    <TextView
+        android:id="@+id/tv_nombre_lugar_comentario"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="16dp"
+        tools:text="Nombre del Lugar" />
+
+    <!-- Mensaje para cuando no hay comentarios -->
+    <TextView
+        android:id="@+id/tv_no_comentarios"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="Aún no hay comentarios. ¡Sé el primero en comentar!"
+        android:layout_marginBottom="16dp"
+        android:visibility="gone" />
+
+    <!-- Lista de comentarios -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_comentarios"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:layout_marginBottom="16dp" />
+
+    <!-- Formulario para añadir un nuevo comentario -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center_horizontal"
+        android:padding="16dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Deja tu comentario y calificación"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="8dp"/>
+
+        <!-- Barra de calificación -->
+        <RatingBar
+            android:id="@+id/rating_bar_add"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:numStars="5"
+            android:stepSize="1"
+            android:layout_marginBottom="8dp" />
+
+        <!-- Campo de texto para el comentario -->
+        <EditText
+            android:id="@+id/et_escribir_comentario"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Escribe tu comentario aquí"
+            android:inputType="textMultiLine"
+            android:lines="3"
+            android:gravity="top"
+            android:padding="12dp"
+            android:layout_marginBottom="8dp"/>
+
+        <!-- Botón para enviar el comentario -->
+        <Button
+            android:id="@+id/btn_enviar_comentario"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Enviar Comentario"
+            android:textColor="@android:color/white"
+            android:padding="12dp" />
+
+    </LinearLayout>
+</LinearLayout>

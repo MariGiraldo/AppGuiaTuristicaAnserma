@@ -72,6 +72,7 @@ public class ActivityMapa extends AppCompatActivity {
 
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 500;
     private static final String TAG = "ActivityMapa";
+    private String usuarioCorreo; // Variable para almacenar el correo del usuario
 
     private enum PlaceType {
         HOTELS, FOOD, RECREATION
@@ -90,6 +91,16 @@ public class ActivityMapa extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_mapa);
+
+        // Obtener el correo del usuario desde el Intent
+        Intent intent = getIntent();
+        if (intent != null && intent.hasExtra("USER_EMAIL")) {
+            usuarioCorreo = intent.getStringExtra("USER_EMAIL");
+        } else {
+            // Manejar el caso si el correo no se pasa, por ejemplo, con un valor predeterminado
+            // o volviendo a la actividad de inicio de sesión.
+            usuarioCorreo = "desconocido@anserview.com";
+        }
 
         Configuration.getInstance().setUserAgentValue(getPackageName());
         Configuration.getInstance().setOsmdroidBasePath(new File(getCacheDir(), "osmdroid"));
@@ -144,8 +155,10 @@ public class ActivityMapa extends AppCompatActivity {
 
         fab_add_place.setOnClickListener(v -> showAddPlaceDialog());
 
+        // Asegurar que el correo se pasa a la siguiente actividad
         fab_view_places.setOnClickListener(v -> {
             Intent intent = new Intent(ActivityMapa.this, ActivityLugares.class);
+            intent.putExtra("USER_EMAIL", usuarioCorreo);
             startActivity(intent);
         });
     }
@@ -178,7 +191,7 @@ public class ActivityMapa extends AppCompatActivity {
                         GeoPoint point = myLocationMarker.getPosition();
                         addCustomMarker(point, name, description, capturedImage);
 
-                        MyDatabaseHelper dbHelper = new MyDatabaseHelper(this, "AppDB", null, 1);
+                        MyDatabaseHelper dbHelper = new MyDatabaseHelper(this);
                         byte[] fotoBytes = null;
                         if (capturedImage != null) {
                             fotoBytes = bitmapToBytes(capturedImage);
@@ -189,6 +202,9 @@ public class ActivityMapa extends AppCompatActivity {
                         registro.put("lat", point.getLatitude());
                         registro.put("lon", point.getLongitude());
                         registro.put("imagen", fotoBytes);
+
+                        // Nuevo: Aquí se agrega el correo del usuario
+                        registro.put("usuario_correo", usuarioCorreo);
 
                         long resultado = dbHelper.insert("Lugares", null, registro);
                         dbHelper.close();
@@ -514,7 +530,7 @@ public class ActivityMapa extends AppCompatActivity {
     }
 
     private void loadSavedPlaces() {
-        MyDatabaseHelper dbHelper = new MyDatabaseHelper(this, "AppDB", null, 1);
+        MyDatabaseHelper dbHelper = new MyDatabaseHelper(this);
         Cursor cursor = dbHelper.getAllLugares();
         if (cursor != null) {
             while (cursor.moveToNext()) {

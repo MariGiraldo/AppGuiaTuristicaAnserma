@@ -48,7 +48,8 @@ public class ActivityRegistrarse extends AppCompatActivity {
     }
 
     public void Registro() {
-        MyDatabaseHelper adminBD = new MyDatabaseHelper(this, "administradorBD", null, 1);
+        MyDatabaseHelper adminBD = new MyDatabaseHelper(this);
+
         SQLiteDatabase baseDeDatos = adminBD.getWritableDatabase();
 
         String correo = et_email.getText().toString().trim();
