@@ -90,17 +90,4 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getReadableDatabase();
         return db.rawQuery("SELECT * FROM Comentarios WHERE id_lugar = ?", new String[]{String.valueOf(idLugar)});
     }
-
-    // Nuevo método para calcular el promedio de calificaciones de un lugar
-    public float getPromedioCalificacion(int idLugar) {
-        SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.rawQuery("SELECT AVG(calificacion) FROM Comentarios WHERE id_lugar = ?", new String[]{String.valueOf(idLugar)});
-        float promedio = 0;
-        if (cursor.moveToFirst()) {
-            promedio = cursor.getFloat(0);
-        }
-        cursor.close();
-        db.close();
-        return promedio;
-    }
 }

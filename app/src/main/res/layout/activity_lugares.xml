@@ -6,45 +6,25 @@
     android:layout_height="match_parent"
     tools:context=".ActivityLugares">
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rv_lugares"
-        android:layout_width="412dp"
-        android:layout_height="568dp"
-        app:layout_constraintBottom_toTopOf="@+id/btn_back_to_map"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tv_titulolista"
-        app:layout_constraintVertical_bias="0.5"
-        tools:listitem="@layout/item_lugar">
-
-    </androidx.recyclerview.widget.RecyclerView>
-
     <Button
         android:id="@+id/btn_back_to_map"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Volver al Mapa"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginTop="16dp"
+        android:layout_marginStart="16dp"/>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_lugares"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="16dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/rv_lugares"
-        app:layout_constraintVertical_bias="0.5" />
-
-    <TextView
-        android:id="@+id/tv_titulolista"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Lista Lugares"
-        android:textColor="#104713"
-        android:textSize="24sp"
-        android:textStyle="bold|italic"
-        app:layout_constraintBottom_toTopOf="@+id/rv_lugares"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.5" />
+        app:layout_constraintTop_toBottomOf="@+id/btn_back_to_map"
+        tools:listitem="@layout/item_lugar" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -21,7 +21,7 @@ public class ActivityComentarios extends AppCompatActivity {
 
     private int idLugar;
     private String nombreLugar;
-    private String autorCorreo; // Correo del usuario actual
+    private String autorCorreo;
     private MyDatabaseHelper dbHelper;
 
     private TextView tvNombreLugar, tvNoComentarios;
@@ -43,10 +43,9 @@ public class ActivityComentarios extends AppCompatActivity {
         if (intent != null) {
             idLugar = intent.getIntExtra("ID_LUGAR", -1);
             nombreLugar = intent.getStringExtra("NOMBRE_LUGAR");
+            // Corrección: Obtener el correo del Intent
+            autorCorreo = intent.getStringExtra("USER_EMAIL");
         }
-
-        // Obtener el correo del usuario actual
-        autorCorreo = "usuario@correo.com"; // **IMPORTANTE: Debes obtener el correo del usuario logueado, igual que en ActivityMapa.**
 
         // Referenciar elementos de la interfaz
         tvNombreLugar = findViewById(R.id.tv_nombre_lugar_comentario);
