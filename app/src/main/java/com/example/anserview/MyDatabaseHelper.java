@@ -97,4 +97,21 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getReadableDatabase();
         return db.rawQuery("SELECT * FROM Comentarios WHERE id_lugar = ?", new String[]{String.valueOf(idLugar)});
     }
+
+    public double getPromedioCalificacion(int idLugar) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery(
+                "SELECT AVG(calificacion) AS promedio FROM Comentarios WHERE id_lugar = ?",
+                new String[]{String.valueOf(idLugar)}
+        );
+
+        double promedio = 0;
+        if (cursor.moveToFirst()) {
+            promedio = cursor.getDouble(cursor.getColumnIndexOrThrow("promedio"));
+        }
+        cursor.close();
+        db.close();
+        return promedio;
+    }
+
 }

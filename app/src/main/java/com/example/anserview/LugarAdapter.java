@@ -37,6 +37,7 @@ public class LugarAdapter extends RecyclerView.Adapter<LugarAdapter.LugarViewHol
         Lugar lugar = listaLugares.get(position);
         holder.tvNombre.setText(lugar.getNombre());
         holder.tvDescripcion.setText(lugar.getDescripcion());
+        holder.tvPromedio.setText(lugar.getPromedio());
         holder.tvCreador.setText("Creado por: " + lugar.getUsuarioCorreo());
 
         byte[] imagenBytes = lugar.getImagen();
@@ -62,7 +63,7 @@ public class LugarAdapter extends RecyclerView.Adapter<LugarAdapter.LugarViewHol
     }
 
     static class LugarViewHolder extends RecyclerView.ViewHolder {
-        TextView tvNombre, tvDescripcion, tvCreador;
+        TextView tvNombre, tvDescripcion, tvCreador, tvPromedio;
         ImageView ivImagen;
         Button btnComentarios;
 
@@ -71,6 +72,7 @@ public class LugarAdapter extends RecyclerView.Adapter<LugarAdapter.LugarViewHol
             tvNombre = itemView.findViewById(R.id.tv_nombre_lugar);
             tvDescripcion = itemView.findViewById(R.id.tv_descripcion_lugar);
             tvCreador = itemView.findViewById(R.id.tv_creador_lugar);
+            tvPromedio = itemView.findViewById(R.id.tv_promedio_lugar);
             ivImagen = itemView.findViewById(R.id.iv_imagen_lugar);
             btnComentarios = itemView.findViewById(R.id.btn_comentarios);
         }
