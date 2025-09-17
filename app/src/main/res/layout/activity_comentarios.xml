@@ -1,22 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
+
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@mipmap/lis"
     android:orientation="vertical"
     android:padding="16dp"
     tools:context=".ActivityComentarios">
 
-    <!-- Título del lugar -->
+    <!-- Título del lugar con estilo moderno -->
     <TextView
         android:id="@+id/tv_nombre_lugar_comentario"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="24dp"
+        android:fontFamily="serif"
         android:gravity="center"
-        android:textSize="24sp"
-        android:textStyle="bold"
-        android:layout_marginBottom="16dp"
+        android:textAlignment="center"
+        android:textColor="#09260B"
+        android:textSize="28sp"
+        android:textStyle="bold|italic"
         tools:text="Nombre del Lugar" />
 
     <!-- Mensaje para cuando no hay comentarios -->
@@ -24,9 +29,10 @@
         android:id="@+id/tv_no_comentarios"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
         android:gravity="center"
         android:text="Aún no hay comentarios. ¡Sé el primero en comentar!"
-        android:layout_marginBottom="16dp"
+        android:textColor="#888888"
         android:visibility="gone" />
 
     <!-- Lista de comentarios -->
@@ -34,54 +40,78 @@
         android:id="@+id/rv_comentarios"
         android:layout_width="match_parent"
         android:layout_height="0dp"
+        android:layout_marginBottom="16dp"
         android:layout_weight="1"
-        android:layout_marginBottom="16dp" />
+        android:background="@android:color/white"
+        android:padding="8dp" />
 
-    <!-- Formulario para añadir un nuevo comentario -->
-    <LinearLayout
+    <!-- Formulario para añadir un nuevo comentario con estilo moderno -->
+    <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:gravity="center_horizontal"
-        android:padding="16dp">
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"
+        app:cardCornerRadius="16dp"
+        app:cardElevation="8dp">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Deja tu comentario y calificación"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            android:layout_marginBottom="8dp"/>
-
-        <!-- Barra de calificación -->
-        <RatingBar
-            android:id="@+id/rating_bar_add"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:numStars="5"
-            android:stepSize="1"
-            android:layout_marginBottom="8dp" />
-
-        <!-- Campo de texto para el comentario -->
-        <EditText
-            android:id="@+id/et_escribir_comentario"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Escribe tu comentario aquí"
-            android:inputType="textMultiLine"
-            android:lines="3"
-            android:gravity="top"
-            android:padding="12dp"
-            android:layout_marginBottom="8dp"/>
+            android:background="#FFFFFF"
+            android:orientation="vertical"
+            android:padding="20dp">
 
-        <!-- Botón para enviar el comentario -->
-        <Button
-            android:id="@+id/btn_enviar_comentario"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Enviar Comentario"
-            android:textColor="@android:color/white"
-            android:padding="12dp" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:fontFamily="serif"
+                android:text="Deja tu comentario y calificación"
+                android:textColor="#333333"
+                android:textSize="18sp"
+                android:textStyle="bold|italic" />
 
-    </LinearLayout>
+            <!-- Barra de calificación con estrellas amarillas y ahora editable -->
+            <RatingBar
+                android:id="@+id/rating_bar_add"
+                style="?android:attr/ratingBarStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginBottom="16dp"
+                android:numStars="5"
+                android:progressBackgroundTint="#E0E0E0"
+                android:progressTint="#FFC107"
+                android:stepSize="1" />
+
+            <!-- Campo de texto para el comentario -->
+            <EditText
+                android:id="@+id/et_escribir_comentario"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:fontFamily="serif"
+                android:gravity="top"
+                android:hint="Escribe tu comentario aquí"
+                android:inputType="textMultiLine"
+                android:lines="3"
+                android:padding="12dp"
+                android:textStyle="italic" />
+
+            <!-- Botón para enviar el comentario -->
+            <Button
+                android:id="@+id/btn_enviar_comentario"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="serif"
+                android:padding="16dp"
+                android:text="Enviar Comentario"
+                android:textColor="@android:color/white"
+                android:textSize="18sp"
+                android:textStyle="bold|italic"
+                app:backgroundTint="#4CAF50"
+                app:cornerRadius="10dp" />
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
 </LinearLayout>

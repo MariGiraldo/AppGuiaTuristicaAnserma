@@ -56,9 +56,11 @@ public class ActivityLugares extends AppCompatActivity {
                 byte[] imagen = cursor.getBlob(cursor.getColumnIndexOrThrow("imagen"));
                 // Nuevo: obtener el correo del usuario
                 String usuarioCorreo = cursor.getString(cursor.getColumnIndexOrThrow("usuario_correo"));
+                // Nuevo: obtener el tipo de lugar
+                String tipoLugar = cursor.getString(cursor.getColumnIndexOrThrow("tipo_lugar"));
 
-                // Nuevo: pasar el correo al constructor de la clase Lugar
-                listaLugares.add(new Lugar(id, nombre, descripcion, imagen, usuarioCorreo));
+                // Nuevo: pasar el tipo de lugar y el correo al constructor de la clase Lugar
+                listaLugares.add(new Lugar(id, nombre, descripcion, imagen, usuarioCorreo, tipoLugar));
             }
             cursor.close();
         }

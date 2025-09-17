@@ -9,7 +9,8 @@ import android.database.sqlite.SQLiteOpenHelper;
 public class MyDatabaseHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "AnserView.db";
-    private static final int DATABASE_VERSION = 2; // Incrementar la versión de la base de datos
+    // Versión actualizada para agregar la columna tipo_lugar
+    private static final int DATABASE_VERSION = 3;
 
     public MyDatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -23,7 +24,7 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
                 + "password TEXT)";
         db.execSQL(createTableRegistros);
 
-        // Crear la tabla para los lugares guardados
+        // Crear la tabla para los lugares guardados, incluyendo 'tipo_lugar'
         String createTableLugares = "CREATE TABLE Lugares ("
                 + "id INTEGER PRIMARY KEY AUTOINCREMENT, "
                 + "nombre TEXT, "
@@ -31,7 +32,8 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
                 + "lat REAL, "
                 + "lon REAL, "
                 + "imagen BLOB, "
-                + "usuario_correo TEXT)";
+                + "usuario_correo TEXT, "
+                + "tipo_lugar TEXT)";
         db.execSQL(createTableLugares);
 
         // Nueva tabla para comentarios y calificaciones
@@ -49,6 +51,7 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         // Lógica de actualización de la base de datos
         if (oldVersion < 2) {
+            // Se agrega la tabla Comentarios si la versión anterior era < 2
             db.execSQL("CREATE TABLE Comentarios ("
                     + "id_comentario INTEGER PRIMARY KEY AUTOINCREMENT, "
                     + "id_lugar INTEGER, "
@@ -56,6 +59,10 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
                     + "comentario TEXT, "
                     + "calificacion REAL, "
                     + "FOREIGN KEY(id_lugar) REFERENCES Lugares(id))");
+        }
+        if (oldVersion < 3) {
+            // Se agrega la columna 'tipo_lugar' a la tabla Lugares si la versión anterior era < 3
+            db.execSQL("ALTER TABLE Lugares ADD COLUMN tipo_lugar TEXT DEFAULT 'OTHER'");
         }
     }
 
@@ -71,7 +78,7 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
 
     public Cursor getAllLugaresWithUser() {
         SQLiteDatabase db = this.getReadableDatabase();
-        return db.rawQuery("SELECT id, nombre, descripcion, lat, lon, imagen, usuario_correo FROM Lugares", null);
+        return db.rawQuery("SELECT id, nombre, descripcion, lat, lon, imagen, usuario_correo, tipo_lugar FROM Lugares", null);
     }
 
     // Nuevo método para insertar un comentario

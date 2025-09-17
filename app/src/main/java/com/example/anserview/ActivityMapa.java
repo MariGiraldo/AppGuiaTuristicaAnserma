@@ -17,6 +17,9 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.RadioGroup;
+import android.widget.RadioButton;
+import android.widget.LinearLayout;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -75,7 +78,7 @@ public class ActivityMapa extends AppCompatActivity {
     private String usuarioCorreo; // Variable para almacenar el correo del usuario
 
     private enum PlaceType {
-        HOTELS, FOOD, RECREATION
+        HOTELS, FOOD, RECREATION, OTHER
     }
 
     private final String overpassQueryTemplate = "[out:json];"
@@ -170,6 +173,40 @@ public class ActivityMapa extends AppCompatActivity {
         EditText etDescription = dialogView.findViewById(R.id.et_description);
         Button btnTakePhoto = dialogView.findViewById(R.id.btn_take_photo);
 
+        // Nuevo: Referencia a los radio botones individuales
+        RadioButton radioFood = dialogView.findViewById(R.id.radio_food);
+        RadioButton radioHotel = dialogView.findViewById(R.id.radio_hotel);
+        RadioButton radioRecreation = dialogView.findViewById(R.id.radio_recreation);
+        RadioButton radioOther = dialogView.findViewById(R.id.radio_other);
+
+        // Variable para almacenar el tipo de lugar seleccionado
+        final String[] selectedPlaceType = {"OTHER"};
+
+        // Configurar los listeners para los radio botones
+        View.OnClickListener radioClickListener = v -> {
+            radioFood.setChecked(v.getId() == R.id.radio_food);
+            radioHotel.setChecked(v.getId() == R.id.radio_hotel);
+            radioRecreation.setChecked(v.getId() == R.id.radio_recreation);
+            radioOther.setChecked(v.getId() == R.id.radio_other);
+
+            if (v.getId() == R.id.radio_food) {
+                selectedPlaceType[0] = "FOOD";
+            } else if (v.getId() == R.id.radio_hotel) {
+                selectedPlaceType[0] = "HOTELS";
+            } else if (v.getId() == R.id.radio_recreation) {
+                selectedPlaceType[0] = "RECREATION";
+            } else if (v.getId() == R.id.radio_other) {
+                selectedPlaceType[0] = "OTHER";
+            }
+        };
+
+        radioFood.setOnClickListener(radioClickListener);
+        radioHotel.setOnClickListener(radioClickListener);
+        radioRecreation.setOnClickListener(radioClickListener);
+        radioOther.setOnClickListener(radioClickListener);
+        // Por defecto, seleccionar "Otro"
+        radioOther.setChecked(true);
+
         btnTakePhoto.setOnClickListener(v -> {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
                 cameraLauncher.launch(null);
@@ -189,7 +226,10 @@ public class ActivityMapa extends AppCompatActivity {
 
                     if (myLocationMarker != null) {
                         GeoPoint point = myLocationMarker.getPosition();
-                        addCustomMarker(point, name, description, capturedImage);
+
+                        PlaceType placeType = PlaceType.valueOf(selectedPlaceType[0]);
+
+                        addCustomMarker(point, name, description, capturedImage, placeType);
 
                         MyDatabaseHelper dbHelper = new MyDatabaseHelper(this);
                         byte[] fotoBytes = null;
@@ -202,6 +242,7 @@ public class ActivityMapa extends AppCompatActivity {
                         registro.put("lat", point.getLatitude());
                         registro.put("lon", point.getLongitude());
                         registro.put("imagen", fotoBytes);
+                        registro.put("tipo_lugar", placeType.name());
 
                         // Nuevo: Aquí se agrega el correo del usuario
                         registro.put("usuario_correo", usuarioCorreo);
@@ -229,11 +270,14 @@ public class ActivityMapa extends AppCompatActivity {
         return stream.toByteArray();
     }
 
-    private void addCustomMarker(GeoPoint point, String name, String description, Bitmap photo) {
+    private void addCustomMarker(GeoPoint point, String name, String description, Bitmap photo, PlaceType type) {
         Marker marker = new Marker(mapView);
         marker.setPosition(point);
         marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
         marker.setTitle(name);
+
+        int iconResId = getIconForPlaceType(type);
+        marker.setIcon(getResources().getDrawable(iconResId, getTheme()));
 
         marker.setOnMarkerClickListener((m, map) -> {
             if (m.isInfoWindowShown()) {
@@ -278,22 +322,22 @@ public class ActivityMapa extends AppCompatActivity {
         requestLocationPermissions();
     }
 
-    private void requestLocationPermissions() {
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this,
-                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                    LOCATION_PERMISSION_REQUEST_CODE);
-        } else {
-            startLocationUpdates();
-        }
-    }
-
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
                                            @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == LOCATION_PERMISSION_REQUEST_CODE && grantResults.length > 0
                 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            startLocationUpdates();
+        }
+    }
+
+    private void requestLocationPermissions() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                    LOCATION_PERMISSION_REQUEST_CODE);
+        } else {
             startLocationUpdates();
         }
     }
@@ -369,6 +413,9 @@ public class ActivityMapa extends AppCompatActivity {
                                 String.format(queryRelations, "\"leisure\"=\"playground\"") +
                                 String.format(queryRelations, "\"tourism\"=\"attraction\"") +
                                 String.format(queryRelations, "\"leisure\"=\"stadium\"");
+                break;
+            case OTHER:
+                overpassTags = "node[\"name\"](area.searchArea);";
                 break;
             default:
                 return;
@@ -525,6 +572,7 @@ public class ActivityMapa extends AppCompatActivity {
             case HOTELS: return R.drawable.ic_hotel;
             case FOOD: return R.drawable.ic_food;
             case RECREATION: return R.drawable.ic_recreation;
+            case OTHER: return R.drawable.ic_marker_default;
             default: return R.drawable.ic_marker_default;
         }
     }
@@ -539,11 +587,21 @@ public class ActivityMapa extends AppCompatActivity {
                 double lat = cursor.getDouble(cursor.getColumnIndexOrThrow("lat"));
                 double lon = cursor.getDouble(cursor.getColumnIndexOrThrow("lon"));
                 byte[] fotoBytes = cursor.getBlob(cursor.getColumnIndexOrThrow("imagen"));
+                String tipoLugarString = cursor.getString(cursor.getColumnIndexOrThrow("tipo_lugar"));
+
                 Bitmap foto = null;
                 if (fotoBytes != null) {
                     foto = android.graphics.BitmapFactory.decodeByteArray(fotoBytes, 0, fotoBytes.length);
                 }
-                addCustomMarker(new GeoPoint(lat, lon), nombre, descripcion, foto);
+
+                PlaceType tipoLugar;
+                try {
+                    tipoLugar = PlaceType.valueOf(tipoLugarString);
+                } catch (IllegalArgumentException e) {
+                    tipoLugar = PlaceType.OTHER;
+                }
+
+                addCustomMarker(new GeoPoint(lat, lon), nombre, descripcion, foto, tipoLugar);
             }
             cursor.close();
         }

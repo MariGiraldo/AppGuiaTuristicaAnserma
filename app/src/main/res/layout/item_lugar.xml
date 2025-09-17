@@ -21,9 +21,12 @@
         android:id="@+id/tv_nombre_lugar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textSize="20sp"
-        android:textStyle="bold"
         android:layout_marginBottom="4dp"
+        android:backgroundTint="#4CAF50"
+        android:fontFamily="serif"
+        android:textColor="#09260B"
+        android:textSize="20sp"
+        android:textStyle="bold|italic"
         tools:text="Nombre del Lugar" />
 
     <!-- Descripción del lugar -->
@@ -31,8 +34,11 @@
         android:id="@+id/tv_descripcion_lugar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textSize="14sp"
         android:layout_marginBottom="4dp"
+        android:fontFamily="serif"
+        android:textColor="#09260B"
+        android:textSize="14sp"
+        android:textStyle="italic"
         tools:text="Descripción breve del lugar." />
 
     <!-- Creador del lugar -->
@@ -40,9 +46,11 @@
         android:id="@+id/tv_creador_lugar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textSize="12sp"
         android:layout_marginBottom="8dp"
+        android:fontFamily="serif"
         android:textColor="@android:color/darker_gray"
+        android:textSize="12sp"
+        android:textStyle="italic"
         tools:text="Creado por: usuario@anserview.com" />
 
     <!-- Botón para ver comentarios -->
@@ -50,7 +58,11 @@
         android:id="@+id/btn_comentarios"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:backgroundTint="#4CAF50"
+        android:fontFamily="serif"
         android:text="Ver Comentarios"
-        android:textColor="@android:color/white" />
+        android:textColor="@android:color/white"
+        android:textSize="18sp"
+        android:textStyle="bold|italic" />
 
 </LinearLayout>
