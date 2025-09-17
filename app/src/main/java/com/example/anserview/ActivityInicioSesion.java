@@ -7,7 +7,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView; // Importa TextView
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -16,7 +16,7 @@ public class ActivityInicioSesion extends AppCompatActivity {
 
     private EditText et_email2, et_cont2;
     private Button btn_inicio;
-    private TextView tv_registrarse; // Declara la variable para el TextView
+    private TextView tv_registrarse;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,7 +27,7 @@ public class ActivityInicioSesion extends AppCompatActivity {
         et_email2 = findViewById(R.id.et_email);
         et_cont2 = findViewById(R.id.et_cont);
         btn_inicio = findViewById(R.id.btn_registrarse);
-        tv_registrarse = findViewById(R.id.tv_inicioSesion); // Referencia al TextView
+        tv_registrarse = findViewById(R.id.tv_inicioSesion);
 
         btn_inicio.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -56,10 +56,9 @@ public class ActivityInicioSesion extends AppCompatActivity {
             return;
         }
 
-        MyDatabaseHelper adminBD = new MyDatabaseHelper(this, "administradorBD", null, 1);
+        MyDatabaseHelper adminBD = new MyDatabaseHelper(this);
         SQLiteDatabase baseDeDatos = adminBD.getReadableDatabase();
 
-        // Consulta a la base de datos
         Cursor cursor = baseDeDatos.rawQuery(
                 "SELECT password FROM Registros WHERE correo = ?", new String[]{correo}
         );
@@ -68,17 +67,17 @@ public class ActivityInicioSesion extends AppCompatActivity {
             String passwordBD = cursor.getString(0);
 
             if (cont.equals(passwordBD)) {
-                // Inicio de sesión exitoso
                 Toast.makeText(this, "Inicio de sesión exitoso", Toast.LENGTH_SHORT).show();
 
+                // Aquí se ha agregado la corrección: se pasa el correo en el Intent
                 Intent intent = new Intent(ActivityInicioSesion.this, ActivityMapa.class);
+                intent.putExtra("USER_EMAIL", correo);
                 startActivity(intent);
-                finish();
 
+                finish(); // Finaliza la actividad de inicio de sesión
             } else {
                 Toast.makeText(this, "Contraseña incorrecta", Toast.LENGTH_SHORT).show();
             }
-
         } else {
             Toast.makeText(this, "Correo no registrado", Toast.LENGTH_SHORT).show();
         }

@@ -48,7 +48,8 @@ public class ActivityRegistrarse extends AppCompatActivity {
     }
 
     public void Registro() {
-        MyDatabaseHelper adminBD = new MyDatabaseHelper(this, "administradorBD", null, 1);
+        MyDatabaseHelper adminBD = new MyDatabaseHelper(this);
+
         SQLiteDatabase baseDeDatos = adminBD.getWritableDatabase();
 
         String correo = et_email.getText().toString().trim();
@@ -74,7 +75,9 @@ public class ActivityRegistrarse extends AppCompatActivity {
             baseDeDatos.close();
             Toast.makeText(this, "Registro exitoso", Toast.LENGTH_SHORT).show();
 
+            // Aquí se ha agregado la corrección: se pasa el correo en el Intent
             Intent next = new Intent(ActivityRegistrarse.this, ActivityMapa.class);
+            next.putExtra("USER_EMAIL", correo); // <-- Esta es la línea clave
             startActivity(next);
             finish();
 

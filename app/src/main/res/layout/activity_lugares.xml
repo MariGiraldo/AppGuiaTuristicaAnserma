@@ -1,56 +1,71 @@
 <?xml version="1.0" encoding="utf-8"?>
+
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@mipmap/anserma"
-    android:alpha="0.80"
     tools:context=".ActivityLugares">
 
-    <TextView
-        android:id="@+id/titulo"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="56dp"
-        android:fontFamily="serif"
-        android:text="Lista de mis lugares Favoritos"
-        android:textAlignment="center"
-        android:textColor="#CBEFCC"
-        android:textSize="34sp"
-        android:textStyle="bold|italic"
-        app:layout_constraintBottom_toTopOf="@+id/lv_listalugares"
+    <!-- Fondo con degradado verde -->
+    <View
+        android:id="@+id/background_view"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="@mipmap/lis"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.0" />
+        app:layout_constraintTop_toTopOf="parent" />
 
-    <ListView
-        android:id="@+id/lv_listalugares"
-        android:layout_width="392dp"
-        android:layout_height="453dp"
-        android:background="#70F0EEEE"
-        android:divider="@color/white"
-        android:dividerHeight="1dp"
-        app:layout_constraintBottom_toTopOf="@+id/btn_volver"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent" />
-
-    <Button
-        android:id="@+id/btn_volver"
+    <!-- Título de la lista -->
+    <TextView
+        android:id="@+id/tv_titulolista"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="20dp"
-        android:backgroundTint="#0B4510"
+        android:layout_marginTop="32dp"
         android:fontFamily="serif"
-        android:text="Volver"
-        android:textColor="#FFFFFF"
-        android:textSize="24sp"
+        android:text="Lista de Lugares"
+        android:textColor="#09260B"
+        android:textSize="28sp"
         android:textStyle="bold|italic"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <!-- RecyclerView para la lista de lugares -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_lugares"
+        android:layout_width="415dp"
+        android:layout_height="534dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="24dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp"
+        app:layout_constraintBottom_toTopOf="@+id/btn_back_to_map"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tv_titulolista"
+        tools:listitem="@layout/item_lugar" />
+
+    <!-- Botón con estilo moderno -->
+    <Button
+        android:id="@+id/btn_back_to_map"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="32dp"
+        android:layout_marginEnd="32dp"
+        android:layout_marginBottom="32dp"
+        android:fontFamily="serif"
+        android:padding="16dp"
+        android:text="Volver al Mapa"
+        android:textColor="@android:color/white"
+        android:textSize="18sp"
+        android:textStyle="bold|italic"
+        app:backgroundTint="#4CAF50"
+        app:cornerRadius="10dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

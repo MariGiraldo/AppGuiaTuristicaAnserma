@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="8dp"
+    android:backgroundTint="#4CAF50"
+    android:orientation="vertical"
+    android:padding="12dp">
+
+    <!-- Fila para el autor y la calificación -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="4dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <!-- Correo del autor del comentario -->
+        <TextView
+            android:id="@+id/tv_autor"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:fontFamily="serif"
+            android:textColor="#09260B"
+            android:textSize="14sp"
+            android:textStyle="bold|italic"
+            tools:text="usuario@correo.com" />
+
+        <!-- Calificación en forma de estrellas (ahora con estrellas amarillas) -->
+        <RatingBar
+            android:id="@+id/rating_bar"
+            style="?android:attr/ratingBarStyleSmall"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:isIndicator="true"
+            android:numStars="5"
+            android:progressBackgroundTint="#CCCCCC"
+            android:progressTint="#FFD700"
+            android:stepSize="1"
+            tools:rating="4.5" />
+    </LinearLayout>
+
+    <!-- Contenido del comentario -->
+    <TextView
+        android:id="@+id/tv_comentario"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fontFamily="serif"
+        android:textSize="14sp"
+        android:textStyle="italic"
+        tools:text="Este es un excelente lugar, me encantó la vista y el ambiente." />
+
+</LinearLayout>

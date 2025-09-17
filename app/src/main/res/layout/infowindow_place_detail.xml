@@ -3,21 +3,23 @@
     android:orientation="vertical"
     android:layout_width="250dp"
     android:layout_height="wrap_content"
-    android:background="@drawable/bg_infowindow"
+    android:background="@drawable/bg_infowindow_green_tint"
     android:padding="12dp"
-    android:elevation="6dp">
+    android:elevation="6dp"
+    android:id="@+id/info_window_container">
 
     <TextView
         android:id="@+id/iw_title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Título"
-        android:textStyle="bold"
-        android:textColor="@android:color/black"
-        android:textSize="16sp"
+        android:layout_marginBottom="6dp"
         android:ellipsize="end"
+        android:fontFamily="serif"
         android:singleLine="true"
-        android:layout_marginBottom="6dp"/>
+        android:text="Título"
+        android:textColor="#09260B"
+        android:textSize="16sp"
+        android:textStyle="bold|italic" />
 
     <ImageView
         android:id="@+id/iw_image"
@@ -25,22 +27,26 @@
         android:layout_height="120dp"
         android:scaleType="centerCrop"
         android:adjustViewBounds="true"
-        android:visibility="gone"
+        android:visibility="visible"
         android:layout_marginBottom="6dp"/>
 
     <TextView
         android:id="@+id/iw_description"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Descripción"
-        android:textSize="14sp"
-        android:textColor="#444"
+        android:ellipsize="end"
+        android:fontFamily="serif"
         android:maxLines="5"
-        android:ellipsize="end"/>
+        android:text="Descripción"
+        android:textColor="#444"
+        android:textSize="14sp"
+        android:textStyle="italic" />
 
     <TextView
         android:id="@+id/tv_distancia"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Distancia" />
+        android:fontFamily="serif"
+        android:text="Distancia"
+        android:textStyle="italic" />
 </LinearLayout>
