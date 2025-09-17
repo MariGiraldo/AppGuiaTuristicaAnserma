@@ -23,6 +23,7 @@ public class ActivityLugares extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_lugares);
 
+
         recyclerView = findViewById(R.id.rv_lugares);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
@@ -48,6 +49,8 @@ public class ActivityLugares extends AppCompatActivity {
         MyDatabaseHelper dbHelper = new MyDatabaseHelper(this);
         Cursor cursor = dbHelper.getAllLugaresWithUser();
 
+
+
         if (cursor != null) {
             while (cursor.moveToNext()) {
                 int id = cursor.getInt(cursor.getColumnIndexOrThrow("id"));
@@ -59,8 +62,10 @@ public class ActivityLugares extends AppCompatActivity {
                 // Nuevo: obtener el tipo de lugar
                 String tipoLugar = cursor.getString(cursor.getColumnIndexOrThrow("tipo_lugar"));
 
+                Double promedio = dbHelper.getPromedioCalificacion(id);
+
                 // Nuevo: pasar el tipo de lugar y el correo al constructor de la clase Lugar
-                listaLugares.add(new Lugar(id, nombre, descripcion, imagen, usuarioCorreo, tipoLugar));
+                listaLugares.add(new Lugar(id, nombre, descripcion, imagen, usuarioCorreo, tipoLugar, promedio));
             }
             cursor.close();
         }

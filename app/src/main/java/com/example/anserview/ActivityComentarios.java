@@ -31,7 +31,7 @@ public class ActivityComentarios extends AppCompatActivity {
 
     private EditText etComentario;
     private RatingBar ratingBar;
-    private Button btnEnviarComentario;
+    private Button btnEnviarComentario, btnVolver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,6 +54,7 @@ public class ActivityComentarios extends AppCompatActivity {
         etComentario = findViewById(R.id.et_escribir_comentario);
         ratingBar = findViewById(R.id.rating_bar_add);
         btnEnviarComentario = findViewById(R.id.btn_enviar_comentario);
+        btnVolver = findViewById(R.id.btn_atras_lugares);
 
         dbHelper = new MyDatabaseHelper(this);
         listaComentarios = new ArrayList<>();
@@ -63,6 +64,15 @@ public class ActivityComentarios extends AppCompatActivity {
 
         tvNombreLugar.setText(nombreLugar);
         cargarComentarios();
+
+        btnVolver.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(ActivityComentarios.this, ActivityLugares.class);
+                startActivity(intent);
+                finish();
+            }
+        });
 
         btnEnviarComentario.setOnClickListener(v -> {
             String comentario = etComentario.getText().toString().trim();

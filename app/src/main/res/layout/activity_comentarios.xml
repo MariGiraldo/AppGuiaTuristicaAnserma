@@ -111,6 +111,19 @@
                 android:textStyle="bold|italic"
                 app:backgroundTint="#4CAF50"
                 app:cornerRadius="10dp" />
+
+            <Button
+                android:id="@+id/btn_atras_lugares"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="serif"
+                android:padding="16dp"
+                android:textColor="@android:color/white"
+                android:textSize="18sp"
+                android:textStyle="bold|italic"
+                app:backgroundTint="#4CAF50"
+                app:cornerRadius="10dp"
+                android:text="Volver" />
         </LinearLayout>
     </androidx.cardview.widget.CardView>
 

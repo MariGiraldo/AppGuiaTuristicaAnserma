@@ -17,9 +17,8 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.RadioGroup;
 import android.widget.RadioButton;
-import android.widget.LinearLayout;
+
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -97,7 +96,7 @@ public class ActivityMapa extends AppCompatActivity {
 
         // Obtener el correo del usuario desde el Intent
         Intent intent = getIntent();
-        if (intent != null && intent.hasExtra("USER_EMAIL")) {
+        if (intent.hasExtra("USER_EMAIL")) {
             usuarioCorreo = intent.getStringExtra("USER_EMAIL");
         } else {
             // Manejar el caso si el correo no se pasa, por ejemplo, con un valor predeterminado
@@ -262,6 +261,7 @@ public class ActivityMapa extends AppCompatActivity {
                 })
                 .setNegativeButton("Cancelar", null)
                 .show();
+
     }
 
     private byte[] bitmapToBytes(Bitmap bitmap) {
