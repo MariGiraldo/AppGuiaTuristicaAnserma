@@ -64,8 +64,6 @@ public class ActivityLugares extends AppCompatActivity {
 
                 Double promedio = dbHelper.getPromedioCalificacion(id);
 
-                String promedioString = promedio.toString();
-
                 // Nuevo: pasar el tipo de lugar y el correo al constructor de la clase Lugar
                 listaLugares.add(new Lugar(id, nombre, descripcion, imagen, usuarioCorreo, tipoLugar, promedio));
             }

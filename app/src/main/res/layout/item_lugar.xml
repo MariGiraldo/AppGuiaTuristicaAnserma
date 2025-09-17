@@ -42,17 +42,34 @@
         tools:text="Descripción breve del lugar." />
 
     <!-- Creador del lugar -->
-    <TextView
-        android:id="@+id/tv_promedio_lugar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:fontFamily="serif"
-        android:layout_marginBottom="4dp"
-        android:textColor="#09260B"
-        android:textSize="14sp"
-        android:textStyle="italic"
-        android:text="Promedio" />
 
+    <!-- LinearLayout para el promedio y la estrella juntos -->
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="start|center_vertical"
+        android:layout_marginBottom="8dp">
+
+        <!-- Promedio -->
+        <TextView
+            android:id="@+id/tv_promedio_lugar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:text="4.5"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <!-- Estrella -->
+        <ImageView
+            android:id="@+id/ivEstrella"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@drawable/ic_star" />
+    </LinearLayout>
+
+    <!-- Creador del lugar -->
     <TextView
         android:id="@+id/tv_creador_lugar"
         android:layout_width="match_parent"
@@ -65,7 +82,6 @@
         tools:text="Creado por: usuario@anserview.com" />
 
     <!-- Botón para ver comentarios -->
-
     <Button
         android:id="@+id/btn_comentarios"
         android:layout_width="match_parent"
